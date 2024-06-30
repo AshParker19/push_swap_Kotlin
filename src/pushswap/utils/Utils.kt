@@ -1,6 +1,5 @@
 package pushswap.utils
 
-import pushswap.constants.Constants
 import pushswap.models.*
 
 object InputParser {
@@ -24,20 +23,21 @@ object InputParser {
 
         val numbers = args.map { it.toInt() }
         require(numbers.distinct().size == numbers.size) { "Error: Duplicate values found " }
-        require(numbers.all { it in Int.MIN_VALUE..Int.MAX_VALUE }) { "Error: Values must be in the range of INT_MIN and INT_MAX"} // is this already checked?
+        // this check is redundant because it's already validated is
+        // require(numbers.all { it in Int.MIN_VALUE . Int.MAX_VALUE }) { "Error: Values must be in the range of INT_MIN and INT_MAX"}
         require(!numbers.isSorted()) { "Error: Values are already sorted" }
     }
 
     fun createStack(args: Array<String>, store: Store) {
         val numbers = args.map { it.toInt() }
-        numbers.forEachIndexed { index, value ->
-            store.pushA(StackElement(value, index, Constants.NEUTRAL))
+        numbers.forEach{ value ->
+            store.pa(StackElement(value))
         }
     }
 
     /*
         extension function for String class.
-        it's private because it's called ?
+        it's private because it's called only withing this object
     */
     private fun String.isNumeric(): Boolean {
         return this.toIntOrNull() != null

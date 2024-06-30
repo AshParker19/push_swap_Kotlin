@@ -15,5 +15,8 @@ class Store( // primary constructor
     var stackA: MutableList<StackElement> = mutableListOf(),
     var stackB: MutableList<StackElement> = mutableListOf()
 ) {
-
+    fun pa(element: StackElement) {
+        stackA.add(element)
+        countA++
+    }
 }
