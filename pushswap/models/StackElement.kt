@@ -1,4 +1,4 @@
-package src.pushswap.models
+package pushswap.models
 
 // data class which stores all data of a single node
 data class StackElement(

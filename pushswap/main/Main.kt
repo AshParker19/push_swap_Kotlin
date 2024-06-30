@@ -1,4 +1,4 @@
-package src.pushswap.main
+package pushswap.main
 
 /*
         Use in my code:

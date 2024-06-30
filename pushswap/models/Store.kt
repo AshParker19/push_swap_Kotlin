@@ -1,6 +1,7 @@
-package src.pushswap.models
+package pushswap.models
 
-class Store(
+class Store( // primary constructor
+
     // data needed for the algorithm
     var countA: Int = 0,
     var countB: Int = 0,
@@ -14,4 +15,5 @@ class Store(
     var stackA: MutableList<StackElement> = mutableListOf(),
     var stackB: MutableList<StackElement> = mutableListOf()
 ) {
+
 }
