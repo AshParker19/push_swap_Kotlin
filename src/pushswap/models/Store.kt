@@ -2,24 +2,23 @@ package pushswap.models
 
 import java.util.ArrayDeque
 
-class Store( // primary constructor
-    initialCountA: Int = 0
-) {
+class Store(inputSize: Int)
+{
     // data needed for the algorithm
-    var countA: Int = initialCountA
-    var countB: Int = 0
-    var chunkSize: Int
-    var chunkNum: Int
+    val chunkSize: Int
+    val chunkNum: Int
     var biggest: Int = Int.MIN_VALUE
     var sndBiggest: Int = Int.MIN_VALUE
     var smallest: Int = Int.MAX_VALUE
+
+    var totalMoves: Int = 0
 
     // deques which represent stacks A and B
     var stackA: ArrayDeque<StackElement> = ArrayDeque()
     var stackB: ArrayDeque<StackElement> = ArrayDeque()
 
     init {
-        when (countA) {
+        when (inputSize) {
             100 -> {
                 chunkSize = 12
                 chunkNum = 8
@@ -29,7 +28,7 @@ class Store( // primary constructor
                 chunkNum = 14
             }
             else -> {
-                chunkSize = countA / 10
+                chunkSize = inputSize / 10
                 chunkNum = 10
             }
         }
@@ -42,6 +41,7 @@ class Store( // primary constructor
             val second = stackA.removeFirst()
             stackA.addFirst(first)
             stackA.addFirst(second)
+            totalMoves++
             println("sa")
         }
     }
@@ -52,6 +52,7 @@ class Store( // primary constructor
             val second = stackB.removeFirst()
             stackB.addFirst(first)
             stackB.addFirst(second)
+            totalMoves++
             println("sb")
         }
     }
@@ -59,14 +60,14 @@ class Store( // primary constructor
     fun ss() {
         sa()
         sb()
+        totalMoves++
         println("ss")
     }
 
     fun pa() {
         if (stackB.isNotEmpty()) {
             stackA.addFirst(stackB.removeFirst())
-            countA++
-            countB--
+            totalMoves++
             println("pa")
         }
     }
@@ -78,8 +79,7 @@ class Store( // primary constructor
     fun pb() {
         if (stackA.isNotEmpty()) {
             stackB.addFirst(stackA.removeFirst())
-            countA--
-            countB++
+            totalMoves++
             println("pb")
         }
     }
@@ -87,6 +87,7 @@ class Store( // primary constructor
     fun ra() {
         if (stackA.size > 1) {
             stackA.addLast(stackA.removeFirst())
+            totalMoves++
             println("ra")
         }
     }
@@ -94,6 +95,7 @@ class Store( // primary constructor
     fun rb() {
         if (stackB.size > 1) {
             stackB.addLast(stackB.removeFirst())
+            totalMoves++
             println("rb")
         }
     }
@@ -101,12 +103,14 @@ class Store( // primary constructor
     fun rr() {
         ra()
         rb()
+        totalMoves++
         println("rr")
     }
 
     fun rra() {
         if (stackA.size > 1) {
             stackA.addFirst(stackA.removeLast())
+            totalMoves++
             println("rra")
         }
     }
@@ -114,6 +118,7 @@ class Store( // primary constructor
     fun rrb() {
         if (stackB.size > 1) {
             stackB.addFirst(stackB.removeLast())
+            totalMoves++
             println("rrb")
         }
     }
@@ -121,6 +126,31 @@ class Store( // primary constructor
     fun rrr() {
         rra()
         rrb()
+        totalMoves++
         println("rrr")
+    }
+
+    // utils
+    private fun isSorted() {
+        val iterator = stackA.iterator()
+        var current = iterator.next()
+
+        while (iterator.hasNext()) {
+            val next = iterator.next()
+            if (current.value > next.value) {
+                println("KO")
+                return
+            }
+            current = next
+        }
+        println("OK")
+    }
+
+    fun result() {
+        println("================================")
+        isSorted()
+        println("Total number of moves --> $totalMoves")
+        println("================================")
+
     }
 }

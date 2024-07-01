@@ -2,13 +2,7 @@ package pushswap.main
 
 import pushswap.models.Store
 import pushswap.utils.InputParser
-
-/*
-        Use in my code:
-                * require and check, maybe assert
-
- */
-
+import pushswap.algorithm.Algorithm
 
 fun main(args: Array<String>) {
         val store: Store
@@ -19,5 +13,6 @@ fun main(args: Array<String>) {
                 InputParser.checker(args)
                 store = InputParser.createStoreAndStack(args)
         }
-        println(store.stackA)
+        Algorithm.sortMain(store)
+        store.result()
 }

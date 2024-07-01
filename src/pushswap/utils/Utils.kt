@@ -21,6 +21,7 @@ object InputParser {
         args.forEach { arg ->
             require(arg.isNumeric()) { "Error: Argument '$arg' is not numeric" }
         }
+        require(args.size > 1) { "Error: Need more than 1 value "}
 
         val numbers = args.map { it.toInt() }
         require(numbers.distinct().size == numbers.size) { "Error: Duplicate values found " }
@@ -30,7 +31,7 @@ object InputParser {
     }
 
     fun createStoreAndStack(args: Array<String>): Store {
-        val store = Store(initialCountA = args.size)
+        val store = Store(inputSize = args.size)
         val numbers = args.map { it.toInt() }
 
         numbers.forEach { value ->
