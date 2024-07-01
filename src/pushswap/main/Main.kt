@@ -1,7 +1,5 @@
 package pushswap.main
 
-import pushswap.models.*
-import pushswap.constants.Constants
 import pushswap.utils.InputParser
 
 /*
@@ -12,12 +10,11 @@ import pushswap.utils.InputParser
 
 
 fun main(args: Array<String>) {
-        val store = Store()
 
         if (args.size == 1) {
-                InputParser.startFromQuotes(args[0], store)
+                InputParser.startFromQuotes(args[0])
         } else {
                 InputParser.checker(args)
-                InputParser.createStack(args, store)
+                InputParser.createStack(args)
         }
 }
