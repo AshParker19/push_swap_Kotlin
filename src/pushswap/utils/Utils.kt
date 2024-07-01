@@ -4,14 +4,15 @@ import pushswap.models.*
 
 object InputParser {
 
-    fun startFromQuotes(input: String) {
+    fun startFromQuotes(input: String): Store {
         require(input.isNotEmpty()) { "Error: Input cannot be empty" }
 
-        val splitInput = input.split(" \t")
+        val splitInput = input.split(" ")
         require(splitInput.all { it.isNumeric() }) { "Error: All elements must be numeric" }
 
         checker(splitInput.toTypedArray())
-        createStack(splitInput.toTypedArray())
+
+        return createStoreAndStack(splitInput.toTypedArray())
     }
 
     fun checker(args: Array<String>) {
@@ -28,13 +29,15 @@ object InputParser {
         require(!numbers.isSorted()) { "Error: Values are already sorted" }
     }
 
-    fun createStack(args: Array<String>) {
-        val store = Store()
+    fun createStoreAndStack(args: Array<String>): Store {
+        val store = Store(initialCountA = args.size)
         val numbers = args.map { it.toInt() }
 
-        numbers.forEach{ value ->
+        numbers.forEach { value ->
             store.pa(value)
         }
+
+        return store
     }
 
     /*

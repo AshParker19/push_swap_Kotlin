@@ -3,20 +3,39 @@ package pushswap.models
 import java.util.ArrayDeque
 
 class Store( // primary constructor
-
-    // data needed for the algorithm
-    var countA: Int = 0,
-    var countB: Int = 0,
-    var chunkSize: Int = 0,
-    var chunkNum: Int = 0,
-    var biggest: Int = Int.MIN_VALUE,
-    var sndBiggest: Int = Int.MIN_VALUE,
-    var smallest: Int = Int.MAX_VALUE,
-
-    // lists which represent stacks A and B
-    var stackA: ArrayDeque<StackElement> = ArrayDeque(),
-    var stackB: ArrayDeque<StackElement> = ArrayDeque()
+    initialCountA: Int = 0
 ) {
+    // data needed for the algorithm
+    var countA: Int = initialCountA
+    var countB: Int = 0
+    var chunkSize: Int
+    var chunkNum: Int
+    var biggest: Int = Int.MIN_VALUE
+    var sndBiggest: Int = Int.MIN_VALUE
+    var smallest: Int = Int.MAX_VALUE
+
+    // deques which represent stacks A and B
+    var stackA: ArrayDeque<StackElement> = ArrayDeque()
+    var stackB: ArrayDeque<StackElement> = ArrayDeque()
+
+    init {
+        when (countA) {
+            100 -> {
+                chunkSize = 12
+                chunkNum = 8
+            }
+            500 -> {
+                chunkSize = 35
+                chunkNum = 14
+            }
+            else -> {
+                chunkSize = countA / 10
+                chunkNum = 10
+            }
+        }
+    }
+
+    // stack operations
     fun sa() {
         if (stackA.size > 1) {
             val first = stackA.removeFirst()
@@ -53,7 +72,7 @@ class Store( // primary constructor
     }
 
     fun pa(value: Int) {
-        stackA.addFirst(StackElement(value))
+        stackA.addLast(StackElement(value))
     }
 
     fun pb() {
