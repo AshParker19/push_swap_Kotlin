@@ -12,11 +12,13 @@ object APS {
             copy[index] = stackElement.value
         }
         copy.sort()
-        marker(store, copy, 1)
-
+        println(store.stackA.toString())
+        marker(store, copy)
+        println(store.stackA.toString())
 
     }
 
+/* I had to comment this recursive function, my old mac cannot handle it
     private fun marker(store: Store, copy: IntArray, chunkIndex: Int) {
         if (store.stackA.isEmpty()) return
 
@@ -36,6 +38,32 @@ object APS {
             marker(store, copy, chunkIndex + 1)
         }
     }
+*/
 
+    private fun marker(store: Store, copy: IntArray) {
+        var chunkIndex = 1
+
+        while (chunkIndex <= store.chunkNum) {
+            if (store.stackA.isEmpty()) return
+
+            val pos = copy.indexOf(store.stackA.first().value)
+            val rangeStart = (chunkIndex - 1) * store.chunkSize
+            val rangeEnd = chunkIndex * store.chunkSize
+
+            if (pos in rangeStart until rangeEnd) {
+                store.stackA.first().flag = chunkIndex
+            }
+
+            val firstElement = store.stackA.removeFirst()
+            store.stackA.addLast(firstElement)
+
+            chunkIndex++
+        }
+
+    }
+
+//    private fun pushBMain(store: Store) {
+//
+//    }
 }
 
