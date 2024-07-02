@@ -149,6 +149,7 @@ class Store(inputSize: Int)
     fun result() {
         println("================================")
         isSorted()
+        println("Number of elements    --> ${stackA.size}")
         println("Total number of moves --> $totalMoves")
         println("================================")
 

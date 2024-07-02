@@ -6,13 +6,13 @@ import java.util.ArrayDeque
 object Algorithm {
 
     fun sortMain(store: Store) {
-        val copy = IntArray(store.stackA.size)
 
         when (store.stackA.size) {
             2 -> store.sa()
             3 -> sort3(store)
             4, 5 -> sort4Or5(store, store.stackA.size)
             in 6..9 -> sortLessThan10(store, flag = 0)
+            else -> APS.almightyPS(store)
         }
     }
 
