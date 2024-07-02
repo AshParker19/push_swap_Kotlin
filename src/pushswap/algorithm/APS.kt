@@ -1,8 +1,10 @@
 package pushswap.algorithm
 
-import pushswap.models.StackElement
 import pushswap.models.Store
-import java.util.ArrayDeque
+import pushswap.constants.Constants
+
+// mutable object to imitate C-style call by reference
+class DirectionHolder(var direction: Int = 0)
 
 object APS {
     fun almightyPS(store: Store) {
@@ -12,58 +14,68 @@ object APS {
             copy[index] = stackElement.value
         }
         copy.sort()
-        println(store.stackA.toString())
         marker(store, copy)
-        println(store.stackA.toString())
 
     }
-
-/* I had to comment this recursive function, my old mac cannot handle it
-    private fun marker(store: Store, copy: IntArray, chunkIndex: Int) {
-        if (store.stackA.isEmpty()) return
-
-        val pos = copy.indexOf(store.stackA.first().value)
-        val rangeStart = (chunkIndex - 1) * store.chunkSize
-        val rangeEnd = chunkIndex * store.chunkSize
-
-        if (pos in rangeStart..rangeEnd) {
-            store.stackA.first().flag = chunkIndex
-        }
-
-        val firstElement = store.stackA.removeFirst()
-        marker(store, copy, chunkIndex)
-        store.stackA.addLast(firstElement)
-
-        if (chunkIndex < store.chunkNum) {
-            marker(store, copy, chunkIndex + 1)
-        }
-    }
-*/
 
     private fun marker(store: Store, copy: IntArray) {
-        var chunkIndex = 1
+        val iterator = store.stackA.iterator()
 
-        while (chunkIndex <= store.chunkNum) {
-            if (store.stackA.isEmpty()) return
-
-            val pos = copy.indexOf(store.stackA.first().value)
-            val rangeStart = (chunkIndex - 1) * store.chunkSize
-            val rangeEnd = chunkIndex * store.chunkSize
-
-            if (pos in rangeStart until rangeEnd) {
-                store.stackA.first().flag = chunkIndex
+        while (iterator.hasNext()) {
+            val node = iterator.next()
+            val pos = copy.indexOf(node.value)
+            if (pos != -1) {
+                val chunkIndex = pos / store.chunkSize + 1
+                if (chunkIndex <= store.chunkNum) {
+                    node.flag = chunkIndex
+                }
             }
-
-            val firstElement = store.stackA.removeFirst()
-            store.stackA.addLast(firstElement)
-
-            chunkIndex++
         }
-
     }
 
-//    private fun pushBMain(store: Store) {
-//
-//    }
+    private fun pushBMain(store: Store) {
+        var first = 1
+        var second = 2
+        val pushPair = (store.chunkNum - 2) - 2
+
+        repeat(pushPair) {
+            pushPairs(store, first, second, store.chunkSize * 2)
+            first += 2
+            second += 2
+        }
+        pushTheRest(store.chunkSize, store.chunkNum - 1)
+        pushTheRest(store.chunkSize, store.chunkNum)
+    }
+
+    private fun pushPairs(store: Store, bottomFlag: Int, topFlag: Int, count: Int) {
+        var rrFlag = false
+
+        repeat (count) {
+            store.stackA.forEachIndexed { index, stackElement ->
+                stackElement.index = index
+            }
+            var dir = DirectionHolder()
+
+            val cost = manageDetails(store, bottomFlag, topFlag, dir)
+            when {
+                store.stackB.isNotEmpty() && dir == Constants.UP && rrFlag && cost > 1 -> manageRR(cost, dir)
+                store.stackB.isNotEmpty() && dir == Constants.UP && cost == 1 -> manageTopA(bottomFlag)
+                else -> manageRRA(cost, dir, bottomFlag)
+            }
+            rrFlag = store.stackB.firstOrNull()?.flag == bottomFlag
+        }
+    }
+
+    private fun manageDetails(store: Store,bottomFlag: Int, topFlag: Int, dir: DirectionHolder): Int {
+        val flagCount1 = store.stackA.count { it.flag == bottomFlag}
+        val flagCount2 = store.stackA.count { it.flag == topFlag}
+
+        val cost = when {
+            flagCount1 > 0 && flagCount2 > 0 -> getDirA(bottomFlag, topFlag, directionHolder)
+            flagCount1 > 0 && flagCount2 == 0 -> getDirA(bottomFlag, 0, directionHolder)
+            flagCount1 == 0 && flagCount2 > 0 -> getDirA(0, topFlag, directionHolder)
+            else -> 0
+        }
+    }
 }
 
