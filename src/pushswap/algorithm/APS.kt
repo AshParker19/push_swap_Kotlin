@@ -6,7 +6,7 @@ import pushswap.constants.Constants
 // mutable object to imitate C-style call by reference
 data class DirectionHolder(var direction: Int)
 
-object APS { //TODO check is I can apply some scope function for the whole class so I don't neet to pass Store around
+object APS { //TODO check is I can apply some scope function for the whole class so I don't next to pass Store around
     fun almightyPS(store: Store) {
         val copy = IntArray(store.stackA.size)
 
@@ -15,7 +15,7 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
         copy.sort()
         marker(store, copy)
-
+        pushBMain(store)
     }
 
     private fun marker(store: Store, copy: IntArray) {
@@ -36,7 +36,7 @@ object APS { //TODO check is I can apply some scope function for the whole class
     private fun pushBMain(store: Store) {
         var first = 1
         var second = 2
-        val pushPair = (store.chunkNum - 2) - 2
+        val pushPair = (store.chunkNum - 2) / 2
 
         repeat(pushPair) {
             pushPairs(store, first, second, store.chunkSize * 2)
@@ -57,12 +57,12 @@ object APS { //TODO check is I can apply some scope function for the whole class
             val dir = DirectionHolder(Constants.UP)
 
             val cost = manageDetails(store, bottomFlag, topFlag, dir)
-//            when {
-//                store.stackB.isNotEmpty() && dir == Constants.UP && rrFlag && cost > 1 -> manageRR(cost, dir)
-//                store.stackB.isNotEmpty() && dir == Constants.UP && cost == 1 -> manageTopA(bottomFlag)
-//                else -> manageRRA(cost, dir, bottomFlag)
-//            }
-//            rrFlag = store.stackB.firstOrNull()?.flag == bottomFlag
+            when {
+                store.stackB.isNotEmpty() && dir.direction == Constants.UP && rrFlag && cost > 1 -> manageRR(store, cost, dir)
+                store.stackB.isNotEmpty() && dir.direction == Constants.UP && cost == 1 -> manageTopA(store, bottomFlag)
+                else -> manageRRA(store, cost, dir, bottomFlag)
+            }
+            rrFlag = store.stackB.firstOrNull()?.flag == bottomFlag
         }
     }
 
@@ -127,5 +127,26 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
     }
 
+    fun manageRR(store: Store, cost: Int, dir: DirectionHolder) {
+        store.rr()
+        store.rotateStack(cost - 1, dir, Constants.STACK_A)
+        store.pb()
+    }
+
+    fun manageTopA(store: Store, bottomFlag: Int) {
+        if (store.stackB.first.flag == bottomFlag || store.stackB.first.flag == bottomFlag - 2) {
+            store.rb()
+        }
+        store.pb()
+    }
+
+    fun manageRRA(store: Store, cost: Int, dir: DirectionHolder, bottomFlag: Int) {
+        if (store.stackB.isNotEmpty() && (store.stackB.first.flag == bottomFlag
+                    || store.stackB.first.flag == bottomFlag - 2)) {
+            store.rb()
+        }
+        store.rotateStack(cost, dir, Constants.STACK_A)
+        store.pb()
+    }
 }
 

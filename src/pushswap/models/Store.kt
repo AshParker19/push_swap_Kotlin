@@ -1,5 +1,7 @@
 package pushswap.models
 
+import pushswap.constants.Constants
+import pushswap.algorithm.DirectionHolder
 import java.util.ArrayDeque
 
 class Store(inputSize: Int)
@@ -15,7 +17,7 @@ class Store(inputSize: Int)
 
     // deques which represent stacks A and B
     var stackA: ArrayDeque<StackElement> = ArrayDeque()
-    var stackB: ArrayDeque<StackElement> = ArrayDeque()
+    var stackB: ArrayDeque<StackElement> = ArrayDeque() //TODO make this variables private
 
     init {
         when (inputSize) {
@@ -144,6 +146,21 @@ class Store(inputSize: Int)
             current = next
         }
         println("OK")
+    }
+
+    fun rotateStack(cost: Int, dir: DirectionHolder, stackFlag: Int) {
+        repeat(cost - 1) {
+            when (stackFlag) {
+                Constants.STACK_A -> when (dir.direction) {
+                    Constants.UP -> ra()
+                    Constants.DOWN -> rra()
+                }
+                Constants.STACK_B -> when (dir.direction) {
+                    Constants.UP -> rb()
+                    Constants.DOWN -> rrb()
+                }
+            }
+        }
     }
 
     fun result() {
