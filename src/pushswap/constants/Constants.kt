@@ -1,17 +1,16 @@
 package pushswap.constants
 
 object Constants { // object to store all the macros
-    const val SORTED_ALREADY = 0
-    const val NOT_NUMERIC = 1
-    const val INVALID_INT = 2
+    // stack types
+    const val NEUTRAL = 0
+    const val STACK_A = 1
+    const val STACK_B = 2
 
-    const val NEUTRAL = 3
-    const val STACK_A = 4
-    const val STACK_B = 5
+    // directions
+    const val UP = 3
+    const val DOWN = 4
 
-    const val UP = 6
-    const val DOWN = 7
-
-    const val BIGGEST = 8
-    const val SND_BIGGEST = 9
+    // element hierarchy
+    const val BIGGEST = 5
+    const val SND_BIGGEST = 6
 }
