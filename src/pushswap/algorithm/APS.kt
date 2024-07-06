@@ -43,15 +43,15 @@ object APS { //TODO check is I can apply some scope function for the whole class
             first += 2
             second += 2
         }
-//        pushTheRest(store.chunkSize, store.chunkNum - 1)
-//        pushTheRest(store.chunkSize, store.chunkNum)
+        pushTheRest(store, store.chunkSize, store.chunkNum - 1)
+        pushTheRest(store, store.chunkSize, store.chunkNum)
     }
 
     private fun pushPairs(store: Store, bottomFlag: Int, topFlag: Int, count: Int) {
         var rrFlag = false
 
         repeat (count) {
-            store.stackA.forEachIndexed { index, stackElement -> //TODO make this an extension function because it's used multiple times
+            store.stackA.forEachIndexed { index, stackElement ->
                 stackElement.index = index
             }
             val dir = DirectionHolder(Constants.UP)
@@ -143,6 +143,46 @@ object APS { //TODO check is I can apply some scope function for the whole class
     fun manageRRA(store: Store, cost: Int, dir: DirectionHolder, bottomFlag: Int) {
         if (store.stackB.isNotEmpty() && (store.stackB.first.flag == bottomFlag
                     || store.stackB.first.flag == bottomFlag - 2)) {
+            store.rb()
+        }
+        store.rotateStack(cost, dir, Constants.STACK_A)
+        store.pb()
+    }
+
+    fun pushTheRest(store: Store, count: Int, chunkIndex: Int) {
+        val chunkSum = store.stackA.filter { it.flag == chunkIndex }
+            .sumOf { it.value }
+
+        val mean = chunkSum / store.chunkSize
+        var rrFlag = false
+
+        repeat(count) {
+            store.stackA.forEachIndexed { index, stackElement ->
+                stackElement.index = index
+            }
+            val dir = DirectionHolder(Constants.UP)
+            val cost = getDirA(store, chunkIndex, 0, dir)
+            if (dir.direction == Constants.UP && rrFlag && cost > 1) {
+                manageRR(store, cost, dir)
+            } else if (dir.direction == Constants.UP && cost == 1) {
+                if (store.stackB.first.value < mean) {
+                    store.rb()
+                }
+                store.pb()
+            } else {
+                manageRRA2(store, cost, dir, mean)
+            }
+            if (store.stackB.first.value < mean) {
+                rrFlag = true
+            } else {
+                rrFlag = false
+            }
+        }
+    }
+
+    fun manageRRA2(store: Store, cost: Int, dir: DirectionHolder, mean: Int) {
+        if (store.stackB.first.value < mean
+            && (store.stackB.first.flag == store.chunkNum - 1)) {
             store.rb()
         }
         store.rotateStack(cost, dir, Constants.STACK_A)

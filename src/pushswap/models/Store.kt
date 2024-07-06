@@ -1,5 +1,6 @@
 package pushswap.models
 
+import jdk.jfr.Enabled
 import pushswap.constants.Constants
 import pushswap.algorithm.DirectionHolder
 import java.util.ArrayDeque
@@ -86,25 +87,29 @@ class Store(inputSize: Int)
         }
     }
 
-    fun ra() {
+    fun ra(loggingEnabled: Boolean = true) {
         if (stackA.size > 1) {
             stackA.addLast(stackA.removeFirst())
             totalMoves++
-            println("ra")
+            if (loggingEnabled) {
+                println("ra")
+            }
         }
     }
 
-    fun rb() {
+    fun rb(loggingEnabled: Boolean = true) {
         if (stackB.size > 1) {
             stackB.addLast(stackB.removeFirst())
             totalMoves++
-            println("rb")
+            if (loggingEnabled) {
+                println("rb")
+            }
         }
     }
 
     fun rr() {
-        ra()
-        rb()
+        ra(loggingEnabled = false)
+        rb(loggingEnabled = false)
         totalMoves++
         println("rr")
     }
