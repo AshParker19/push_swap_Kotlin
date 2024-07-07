@@ -2,7 +2,7 @@ package pushswap.models
 
 import jdk.jfr.Enabled
 import pushswap.constants.Constants
-import pushswap.algorithm.DirectionHolder
+import pushswap.algorithm.Holder
 import java.util.ArrayDeque
 
 class Store(inputSize: Int)
@@ -38,31 +38,35 @@ class Store(inputSize: Int)
     }
 
     // stack operations
-    fun sa() {
+    fun sa(loggingEnabled: Boolean = true) {
         if (stackA.size > 1) {
             val first = stackA.removeFirst()
             val second = stackA.removeFirst()
             stackA.addFirst(first)
             stackA.addFirst(second)
-            totalMoves++
-            println("sa")
+            if (loggingEnabled) {
+                totalMoves++
+                println("sa")
+            }
         }
     }
 
-    fun sb() {
+    fun sb(loggingEnabled: Boolean = true) {
         if (stackB.size > 1) {
             val first = stackB.removeFirst()
             val second = stackB.removeFirst()
             stackB.addFirst(first)
             stackB.addFirst(second)
-            totalMoves++
-            println("sb")
+            if (loggingEnabled) {
+                totalMoves++
+                println("sb")
+            }
         }
     }
 
     fun ss() {
-        sa()
-        sb()
+        sa(loggingEnabled = false)
+        sb(loggingEnabled = false)
         totalMoves++
         println("ss")
     }
@@ -90,8 +94,8 @@ class Store(inputSize: Int)
     fun ra(loggingEnabled: Boolean = true) {
         if (stackA.size > 1) {
             stackA.addLast(stackA.removeFirst())
-            totalMoves++
             if (loggingEnabled) {
+                totalMoves++
                 println("ra")
             }
         }
@@ -100,8 +104,8 @@ class Store(inputSize: Int)
     fun rb(loggingEnabled: Boolean = true) {
         if (stackB.size > 1) {
             stackB.addLast(stackB.removeFirst())
-            totalMoves++
             if (loggingEnabled) {
+                totalMoves++
                 println("rb")
             }
         }
@@ -114,25 +118,29 @@ class Store(inputSize: Int)
         println("rr")
     }
 
-    fun rra() {
+    fun rra(loggingEnabled: Boolean = true) {
         if (stackA.size > 1) {
             stackA.addFirst(stackA.removeLast())
-            totalMoves++
-            println("rra")
+            if (loggingEnabled) {
+                totalMoves++
+                println("rra")
+            }
         }
     }
 
-    fun rrb() {
+    fun rrb(loggingEnabled: Boolean = true) {
         if (stackB.size > 1) {
             stackB.addFirst(stackB.removeLast())
-            totalMoves++
-            println("rrb")
+            if (loggingEnabled) {
+                totalMoves++
+                println("rrb")
+            }
         }
     }
 
     fun rrr() {
-        rra()
-        rrb()
+        rra(loggingEnabled = false)
+        rrb(loggingEnabled = false)
         totalMoves++
         println("rrr")
     }
@@ -153,7 +161,7 @@ class Store(inputSize: Int)
         println("OK")
     }
 
-    fun rotateStack(cost: Int, dir: DirectionHolder, stackFlag: Int) {
+    fun rotateStack(cost: Int, dir: Holder, stackFlag: Int) {
         repeat(cost - 1) {
             when (stackFlag) {
                 Constants.STACK_A -> when (dir.direction) {

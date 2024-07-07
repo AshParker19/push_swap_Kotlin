@@ -2,10 +2,9 @@ package pushswap.algorithm
 
 import pushswap.models.Store
 import pushswap.constants.Constants
-import java.util.Objects
 
 // mutable object to imitate C-style call by reference
-data class Holder(var direction: Int = Constants.UP, var toPush: Int = 0, var count: Int = 0)
+data class Holder(var direction: Int = 0, var toPush: Int = 0, var count: Int = 0)
 
 object APS { //TODO check is I can apply some scope function for the whole class so I don't next to pass Store around
     fun almightyPS(store: Store) {
@@ -51,7 +50,7 @@ object APS { //TODO check is I can apply some scope function for the whole class
     }
 
     private fun pushPairs(store: Store, bottomFlag: Int, topFlag: Int, count: Int) {
-        var rrFlag = false
+        var rrFlag: Boolean? = null
 
         repeat (count) {
             store.stackA.forEachIndexed { index, stackElement ->
@@ -61,7 +60,7 @@ object APS { //TODO check is I can apply some scope function for the whole class
 
             val cost = manageDetails(store, bottomFlag, topFlag, dir)
             when {
-                store.stackB.isNotEmpty() && dir.direction == Constants.UP && rrFlag && cost > 1 -> manageRR(store, cost, dir)
+                store.stackB.isNotEmpty() && dir.direction == Constants.UP && (rrFlag == true || rrFlag == null) && cost > 1 -> manageRR(store, cost, dir)
                 store.stackB.isNotEmpty() && dir.direction == Constants.UP && cost == 1 -> manageTopA(store, bottomFlag)
                 else -> manageRRA(store, cost, dir, bottomFlag)
             }
@@ -81,7 +80,7 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
     }
 
-    fun getDirA(store: Store, flag1: Int, flag2: Int, dir: Holder): Int {
+    private fun getDirA(store: Store, flag1: Int, flag2: Int, dir: Holder): Int {
         return if (flag1 != 0 && flag2 != 0) {
             val flag1Cost = findCloser(store, flag1, dir)
             val dirSave = dir.direction
@@ -99,7 +98,7 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
     }
 
-    fun findCloser(store: Store, flag: Int, dir: Holder): Int {
+    private fun findCloser(store: Store, flag: Int, dir: Holder): Int {
         val indexFromStart = store.stackA.indexOfFirst { element ->
             element.flag == flag
         }
@@ -120,7 +119,7 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
     }
 
-    fun findCost(index: Int, count: Int, dir: Holder): Int {
+    private fun findCost(index: Int, count: Int, dir: Holder): Int {
         return if (index <= count - index) {
             dir.direction = Constants.UP
             index + 1
@@ -130,20 +129,20 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
     }
 
-    fun manageRR(store: Store, cost: Int, dir: Holder) {
+    private fun manageRR(store: Store, cost: Int, dir: Holder) {
         store.rr()
         store.rotateStack(cost - 1, dir, Constants.STACK_A)
         store.pb()
     }
 
-    fun manageTopA(store: Store, bottomFlag: Int) {
+    private fun manageTopA(store: Store, bottomFlag: Int) {
         if (store.stackB.first.flag == bottomFlag || store.stackB.first.flag == bottomFlag - 2) {
             store.rb()
         }
         store.pb()
     }
 
-    fun manageRRA(store: Store, cost: Int, dir: Holder, bottomFlag: Int) {
+    private fun manageRRA(store: Store, cost: Int, dir: Holder, bottomFlag: Int) {
         if (store.stackB.isNotEmpty() && (store.stackB.first.flag == bottomFlag
                     || store.stackB.first.flag == bottomFlag - 2)) {
             store.rb()
@@ -152,7 +151,7 @@ object APS { //TODO check is I can apply some scope function for the whole class
         store.pb()
     }
 
-    fun pushTheRest(store: Store, count: Int, chunkIndex: Int) {
+    private fun pushTheRest(store: Store, count: Int, chunkIndex: Int) {
         val chunkSum = store.stackA.filter { it.flag == chunkIndex }
             .sumOf { it.value }
 
@@ -175,15 +174,11 @@ object APS { //TODO check is I can apply some scope function for the whole class
             } else {
                 manageRRA2(store, cost, dir, mean)
             }
-            if (store.stackB.first.value < mean) {
-                rrFlag = true
-            } else {
-                rrFlag = false
-            }
+            rrFlag = store.stackB.first.value < mean
         }
     }
 
-    fun manageRRA2(store: Store, cost: Int, dir: Holder, mean: Int) {
+    private fun manageRRA2(store: Store, cost: Int, dir: Holder, mean: Int) {
         if (store.stackB.first.value < mean
             && (store.stackB.first.flag == store.chunkNum - 1)) {
             store.rb()
@@ -192,17 +187,15 @@ object APS { //TODO check is I can apply some scope function for the whole class
         store.pb()
     }
 
-    fun sortRemainder(store: Store) {
-        if (store.stackA.size == 4) {
-            Algorithm.sort4Or5(store, 4)
-        } else if (store.stackA.size == 10) {
-            Algorithm.sortLessThan10(store, 1)
-        } else {
-            Algorithm.sortLessThan10(store, 0)
+    private fun sortRemainder(store: Store) {
+        when (store.stackA.size) {
+            4 -> Algorithm.sort4Or5(store, 4)
+            10 -> Algorithm.sortLessThan10(store, 1)
+            else -> Algorithm.sortLessThan10(store, 0)
         }
     }
 
-    fun pushAMain(store: Store) {
+    private fun pushAMain(store: Store) {
         val dir = Holder()
         var first = 1
         var wasPushed = 0
@@ -226,7 +219,7 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
     }
 
-    fun find1st2nd(store: Store) {
+    private fun find1st2nd(store: Store) {
         store.stackB.forEachIndexed { index, stackElement ->
             when {
                 stackElement.value > store.biggest -> {
@@ -241,7 +234,7 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
     }
 
-    fun findCost2(store: Store, dir: Holder): Int {
+    private fun findCost2(store: Store, dir: Holder): Int {
         var position = store.stackB.indexOfFirst { element ->
             element.value == store.biggest
         }.coerceAtLeast(0)
@@ -263,7 +256,7 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
     }
 
-    fun manageSB(store: Store): Boolean {
+    private fun manageSB(store: Store): Boolean {
         return if (store.stackB.first.value == store.sndBiggest
             && store.stackB.elementAt(1).value == store.biggest) {
             store.sb()
@@ -273,38 +266,34 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
     }
 
-    fun manageSndBiggest(store: Store, dir: Holder) {
-        var count = 0
-
-        if (count == 0) {
-            count++
+    private fun manageSndBiggest(store: Store, dir: Holder) {
+        if (dir.count == 0) {
+            dir.count++
         }
         when (dir.toPush) {
             Constants.BIGGEST -> {
-                rollback(store, count)
-                count = 0
+                rollback(store, dir.count)
+                dir.count = 0
             }
             Constants.SND_BIGGEST -> {
                 store.pa()
-                count++
+                dir.count++
             }
         }
     }
 
-    fun rollback(store: Store, raCount: Int) {
-        var rraCount = raCount
-
-        when (raCount) {
+    private fun rollback(store: Store, count: Int) {
+        when (count) {
             1 -> {
                 store.pa()
                 store.sa()
             }
             else -> {
-                repeat(raCount) {
+                repeat(count) {
                     store.ra()
                 }
                 store.pa()
-                repeat(rraCount) {
+                repeat(count) {
                     store.rra()
                 }
             }

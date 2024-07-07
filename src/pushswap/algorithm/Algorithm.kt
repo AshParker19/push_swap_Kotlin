@@ -18,7 +18,7 @@ object Algorithm {
 
     private fun sort3(store: Store) {
         with(store) {
-            if (stackA.first().value > stackA.elementAt(1).value && stackA.first().value > stackA.elementAt(2).index) ra()
+            if (stackA.first().value > stackA.elementAt(1).value && stackA.first().value > stackA.elementAt(2).value) ra()
             if (stackA.elementAt(1).value > stackA.first().value && stackA.elementAt(1).value > stackA.elementAt(2).value) rra()
             if (stackA.first().value > stackA.elementAt(1).value) sa()
         }
