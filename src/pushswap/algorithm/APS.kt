@@ -6,85 +6,87 @@ import pushswap.constants.Constants
 // mutable object to imitate C-style call by reference
 data class Holder(var direction: Int = 0, var toPush: Int = 0, var count: Int = 0)
 
-object APS { //TODO check is I can apply some scope function for the whole class so I don't next to pass Store around
+object APS {
     fun almightyPS(store: Store) {
-        val copy = IntArray(store.stackA.size)
+        with (store) {
+            val copy = IntArray(store.stackA.size)
+            store.stackA.forEachIndexed { index, stackElement ->
+                copy[index] = stackElement.value
+            }
 
-        store.stackA.forEachIndexed { index, stackElement ->
-            copy[index] = stackElement.value
+            copy.sort()
+            marker(copy)
+            pushBMain()
+            sortRemainder()
+            pushAMain()
         }
-        copy.sort()
-        marker(store, copy)
-        pushBMain(store)
-        sortRemainder(store)
-        pushAMain(store)
     }
 
-    private fun marker(store: Store, copy: IntArray) {
-        val iterator = store.stackA.iterator()
+    private fun Store.marker(copy: IntArray) {
+        val iterator = stackA.iterator()
 
         while (iterator.hasNext()) {
             val node = iterator.next()
             val pos = copy.indexOf(node.value)
             if (pos != -1) {
-                val chunkIndex = pos / store.chunkSize + 1
-                if (chunkIndex <= store.chunkNum) {
+                val chunkIndex = pos / chunkSize + 1
+                if (chunkIndex <= chunkNum) {
                     node.flag = chunkIndex
                 }
             }
         }
     }
 
-    private fun pushBMain(store: Store) {
+    private fun Store.pushBMain() {
         var first = 1
         var second = 2
-        val pushPair = (store.chunkNum - 2) / 2
+        val pushPair = (chunkNum - 2) / 2
 
         repeat(pushPair) {
-            pushPairs(store, first, second, store.chunkSize * 2)
+            pushPairs(first, second, chunkSize * 2)
             first += 2
             second += 2
         }
-        pushTheRest(store, store.chunkSize, store.chunkNum - 1)
-        pushTheRest(store, store.chunkSize, store.chunkNum)
+        pushTheRest(chunkSize, chunkNum - 1)
+        pushTheRest(chunkSize, chunkNum)
     }
 
-    private fun pushPairs(store: Store, bottomFlag: Int, topFlag: Int, count: Int) {
+    private fun Store.pushPairs(bottomFlag: Int, topFlag: Int, count: Int) {
         var rrFlag: Boolean? = null
 
         repeat (count) {
-            store.stackA.forEachIndexed { index, stackElement ->
+            stackA.forEachIndexed { index, stackElement ->
                 stackElement.index = index
             }
             val dir = Holder()
 
-            val cost = manageDetails(store, bottomFlag, topFlag, dir)
+            val cost = manageDetails(bottomFlag, topFlag, dir)
             when {
-                store.stackB.isNotEmpty() && dir.direction == Constants.UP && (rrFlag == true || rrFlag == null) && cost > 1 -> manageRR(store, cost, dir)
-                store.stackB.isNotEmpty() && dir.direction == Constants.UP && cost == 1 -> manageTopA(store, bottomFlag)
-                else -> manageRRA(store, cost, dir, bottomFlag)
+                stackB.isNotEmpty() && dir.direction == Constants.UP && (rrFlag == true || rrFlag == null) && cost > 1 -> manageRR(cost, dir)
+                stackB.isNotEmpty() && dir.direction == Constants.UP && cost == 1 -> manageTopA(bottomFlag)
+                else -> manageRRA(cost, dir, bottomFlag)
             }
-            rrFlag = store.stackB.firstOrNull()?.flag == bottomFlag
+            rrFlag = stackB.firstOrNull()?.flag == bottomFlag
         }
     }
 
-    private fun manageDetails(store: Store,bottomFlag: Int, topFlag: Int, dir: Holder): Int {
-        val flagCount1 = store.stackA.count { it.flag == bottomFlag}
-        val flagCount2 = store.stackA.count { it.flag == topFlag}
+    private fun Store.manageDetails(bottomFlag: Int, topFlag: Int, dir: Holder): Int {
+        val flagCount1 = stackA.count { it.flag == bottomFlag}
+        val flagCount2 = stackA.count { it.flag == topFlag}
 
         return when {
-            flagCount1 > 0 && flagCount2 > 0 -> getDirA(store, bottomFlag, topFlag, dir)
-            flagCount1 > 0 && flagCount2 == 0 -> getDirA(store, bottomFlag, 0, dir)
-            flagCount1 == 0 && flagCount2 > 0 -> getDirA(store, 0, topFlag, dir)
+            flagCount1 > 0 && flagCount2 > 0 -> getDirA(bottomFlag, topFlag, dir)
+            flagCount1 > 0 && flagCount2 == 0 -> getDirA(bottomFlag, 0, dir)
+            flagCount1 == 0 && flagCount2 > 0 -> getDirA(0, topFlag, dir)
             else -> 0
         }
     }
 
-    private fun getDirA(store: Store, flag1: Int, flag2: Int, dir: Holder): Int {
+    private fun Store.getDirA(flag1: Int, flag2: Int, dir: Holder): Int {
         return if (flag1 != 0 && flag2 != 0) {
-            val flag1Cost = findCloser(store, flag1, dir)
+            val flag1Cost = findCloser(flag1, dir)
             val dirSave = dir.direction
-            val flag2Cost = findCloser(store, flag2, dir)
+            val flag2Cost = findCloser(flag2, dir)
             if (flag1Cost <= flag2Cost) {
                 dir.direction = dirSave
                 flag1Cost
@@ -92,24 +94,24 @@ object APS { //TODO check is I can apply some scope function for the whole class
                 flag2Cost
             }
         } else if (flag1 != 0) {
-            findCloser(store, flag1, dir)
+            findCloser(flag1, dir)
         } else {
-            findCloser(store, flag2, dir)
+            findCloser(flag2, dir)
         }
     }
 
-    private fun findCloser(store: Store, flag: Int, dir: Holder): Int {
-        val indexFromStart = store.stackA.indexOfFirst { element ->
+    private fun Store.findCloser(flag: Int, dir: Holder): Int {
+        val indexFromStart = stackA.indexOfFirst { element ->
             element.flag == flag
         }
 
-        val indexFromEnd = store.stackA.indexOfLast { element ->
+        val indexFromEnd = stackA.indexOfLast { element ->
             element.flag == flag
         }
 
-        val startCost = findCost(indexFromStart, store.stackA.size, dir)
+        val startCost = findCost(indexFromStart, stackA.size, dir)
         val dirSave = dir.direction
-        val endCost = findCost(indexFromEnd, store.stackA.size, dir)
+        val endCost = findCost(indexFromEnd, stackA.size, dir)
 
         return if (startCost <= endCost) {
             dir.direction = dirSave
@@ -129,122 +131,122 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
     }
 
-    private fun manageRR(store: Store, cost: Int, dir: Holder) {
-        store.rr()
-        store.rotateStack(cost - 1, dir, Constants.STACK_A)
-        store.pb()
+    private fun Store.manageRR(cost: Int, dir: Holder) {
+        rr()
+        rotateStack(cost - 1, dir, Constants.STACK_A)
+        pb()
     }
 
-    private fun manageTopA(store: Store, bottomFlag: Int) {
-        if (store.stackB.first.flag == bottomFlag || store.stackB.first.flag == bottomFlag - 2) {
-            store.rb()
+    private fun Store.manageTopA(bottomFlag: Int) {
+        if (stackB.first.flag == bottomFlag || stackB.first.flag == bottomFlag - 2) {
+            rb()
         }
-        store.pb()
+        pb()
     }
 
-    private fun manageRRA(store: Store, cost: Int, dir: Holder, bottomFlag: Int) {
-        if (store.stackB.isNotEmpty() && (store.stackB.first.flag == bottomFlag
-                    || store.stackB.first.flag == bottomFlag - 2)) {
-            store.rb()
+    private fun Store.manageRRA(cost: Int, dir: Holder, bottomFlag: Int) {
+        if (stackB.isNotEmpty() && (stackB.first.flag == bottomFlag
+                    || stackB.first.flag == bottomFlag - 2)) {
+            rb()
         }
-        store.rotateStack(cost, dir, Constants.STACK_A)
-        store.pb()
+        rotateStack(cost, dir, Constants.STACK_A)
+        pb()
     }
 
-    private fun pushTheRest(store: Store, count: Int, chunkIndex: Int) {
-        val chunkSum = store.stackA.filter { it.flag == chunkIndex }
+    private fun Store.pushTheRest(count: Int, chunkIndex: Int) {
+        val chunkSum = stackA.filter { it.flag == chunkIndex }
             .sumOf { it.value }
 
-        val mean = chunkSum / store.chunkSize
+        val mean = chunkSum / chunkSize
         var rrFlag = false
 
         repeat(count) {
-            store.stackA.forEachIndexed { index, stackElement ->
+            stackA.forEachIndexed { index, stackElement ->
                 stackElement.index = index
             }
             val dir = Holder(Constants.UP)
-            val cost = getDirA(store, chunkIndex, 0, dir)
+            val cost = getDirA(chunkIndex, 0, dir)
             if (dir.direction == Constants.UP && rrFlag && cost > 1) {
-                manageRR(store, cost, dir)
+                manageRR(cost, dir)
             } else if (dir.direction == Constants.UP && cost == 1) {
-                if (store.stackB.first.value < mean) {
-                    store.rb()
+                if (stackB.first.value < mean) {
+                    rb()
                 }
-                store.pb()
+                pb()
             } else {
-                manageRRA2(store, cost, dir, mean)
+                manageRRA2(cost, dir, mean)
             }
-            rrFlag = store.stackB.first.value < mean
+            rrFlag = stackB.first.value < mean
         }
     }
 
-    private fun manageRRA2(store: Store, cost: Int, dir: Holder, mean: Int) {
-        if (store.stackB.first.value < mean
-            && (store.stackB.first.flag == store.chunkNum - 1)) {
-            store.rb()
+    private fun Store.manageRRA2(cost: Int, dir: Holder, mean: Int) {
+        if (stackB.first.value < mean
+            && (stackB.first.flag == chunkNum - 1)) {
+            rb()
         }
-        store.rotateStack(cost, dir, Constants.STACK_A)
-        store.pb()
+        rotateStack(cost, dir, Constants.STACK_A)
+        pb()
     }
 
-    private fun sortRemainder(store: Store) {
-        when (store.stackA.size) {
-            4 -> Algorithm.sort4Or5(store, 4)
-            10 -> Algorithm.sortLessThan10(store, 1)
-            else -> Algorithm.sortLessThan10(store, 0)
+    private fun Store.sortRemainder() {
+        when (stackA.size) {
+            4 -> Algorithm.sort4Or5(this, 4)
+            10 -> Algorithm.sortLessThan10(this, 1)
+            else -> Algorithm.sortLessThan10(this, 0)
         }
     }
 
-    private fun pushAMain(store: Store) {
+    private fun Store.pushAMain() {
         val dir = Holder()
         var first = 1
         var wasPushed = 0
 
-        while (store.stackB.isNotEmpty()) {
-            store.biggest = Int.MIN_VALUE
-            find1st2nd(store)
-            val cost = findCost2(store, dir)
-            store.rotateStack(cost, dir, Constants.STACK_B)
-            if (manageSB(store)) {
+        while (stackB.isNotEmpty()) {
+            biggest = Int.MIN_VALUE
+            find1st2nd()
+            val cost = findCost2(dir)
+            rotateStack(cost, dir, Constants.STACK_B)
+            if (manageSB()) {
                 continue
             }
             if (first-- == 1) {
-                store.pa()
+                pa()
             } else if (wasPushed == Constants.BIGGEST) {
-                store.pa()
+                pa()
             } else if (wasPushed == Constants.SND_BIGGEST) {
-                manageSndBiggest(store, dir)
+                manageSndBiggest(dir)
             }
             wasPushed = dir.toPush
         }
     }
 
-    private fun find1st2nd(store: Store) {
-        store.stackB.forEachIndexed { index, stackElement ->
+    private fun Store.find1st2nd() {
+        stackB.forEachIndexed { index, stackElement ->
             when {
-                stackElement.value > store.biggest -> {
-                    store.sndBiggest = store.biggest
-                    store.biggest = stackElement.value
+                stackElement.value > biggest -> {
+                    sndBiggest = biggest
+                    biggest = stackElement.value
                 }
-                stackElement.value > store.sndBiggest -> {
-                    store.sndBiggest = stackElement.value
+                stackElement.value > sndBiggest -> {
+                    sndBiggest = stackElement.value
                 }
             }
             stackElement.index = index
         }
     }
 
-    private fun findCost2(store: Store, dir: Holder): Int {
-        var position = store.stackB.indexOfFirst { element ->
-            element.value == store.biggest
+    private fun Store.findCost2(dir: Holder): Int {
+        var position = stackB.indexOfFirst { element ->
+            element.value == biggest
         }.coerceAtLeast(0)
-        val cost1 = findCost(position, store.stackB.size, dir)
+        val cost1 = findCost(position, stackB.size, dir)
         val dirCopy = dir.direction
 
-        position = store.stackB.indexOfFirst { element ->
-            element.value == store.sndBiggest
+        position = stackB.indexOfFirst { element ->
+            element.value == sndBiggest
         }.coerceAtLeast(0)
-        val cost2 = findCost(position, store.stackB.size, dir)
+        val cost2 = findCost(position, stackB.size, dir)
 
         return if (cost1 <= cost2) {
             dir.toPush = Constants.BIGGEST
@@ -256,45 +258,45 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
     }
 
-    private fun manageSB(store: Store): Boolean {
-        return if (store.stackB.first.value == store.sndBiggest
-            && store.stackB.elementAt(1).value == store.biggest) {
-            store.sb()
+    private fun Store.manageSB(): Boolean {
+        return if (stackB.first.value == sndBiggest
+            && stackB.elementAt(1).value == biggest) {
+            sb()
             true
         } else {
             false
         }
     }
 
-    private fun manageSndBiggest(store: Store, dir: Holder) {
+    private fun Store.manageSndBiggest(dir: Holder) {
         if (dir.count == 0) {
             dir.count++
         }
         when (dir.toPush) {
             Constants.BIGGEST -> {
-                rollback(store, dir.count)
+                rollback(dir.count)
                 dir.count = 0
             }
             Constants.SND_BIGGEST -> {
-                store.pa()
+                pa()
                 dir.count++
             }
         }
     }
 
-    private fun rollback(store: Store, count: Int) {
+    private fun Store.rollback(count: Int) {
         when (count) {
             1 -> {
-                store.pa()
-                store.sa()
+                pa()
+                sa()
             }
             else -> {
                 repeat(count) {
-                    store.ra()
+                    ra()
                 }
-                store.pa()
+                pa()
                 repeat(count) {
-                    store.rra()
+                    rra()
                 }
             }
         }

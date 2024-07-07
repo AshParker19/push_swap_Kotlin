@@ -6,84 +6,90 @@ import java.util.ArrayDeque
 object Algorithm {
 
     fun sortMain(store: Store) {
-
-        when (store.stackA.size) {
-            2 -> store.sa()
-            3 -> sort3(store)
-            4, 5 -> sort4Or5(store, store.stackA.size)
-            in 6..9 -> sortLessThan10(store, flag = 0)
-            else -> APS.almightyPS(store)
+        with (store) {
+            when (stackA.size) {
+                2 -> sa()
+                3 -> sort3(this)
+                4, 5 -> sort4Or5(this, stackA.size)
+                in 6..9 -> sortLessThan10(this, flag = 0)
+                else -> APS.almightyPS(this)
+            }
         }
     }
 
     private fun sort3(store: Store) {
         with(store) {
-            if (stackA.first().value > stackA.elementAt(1).value && stackA.first().value > stackA.elementAt(2).value) ra()
+            if (stackA.first().value > stackA.elementAt(1).value && stackA.first().value > stackA.elementAt(2).index) ra()
             if (stackA.elementAt(1).value > stackA.first().value && stackA.elementAt(1).value > stackA.elementAt(2).value) rra()
             if (stackA.first().value > stackA.elementAt(1).value) sa()
         }
     }
 
     fun sort4Or5(store: Store, save: Int) {
-        var i = 2
+        with (store) {
+            var i = 2
 
-        while (i > 0) {
-            store.smallest = Int.MAX_VALUE
-            findTheSmallest(store, store.stackA)
-            val smallestIndex = store.stackA.indexOfFirst { it.value == store.smallest }
-            if (smallestIndex <= i) {
-                while (store.stackA.first().value != store.smallest) {
-                    store.ra()
+            while (i > 0) {
+                smallest = Int.MAX_VALUE
+                findTheSmallest(stackA) // TODO: check if can be lambda
+                val smallestIndex = stackA.indexOfFirst { it.value == smallest }
+                if (smallestIndex <= i) {
+                    while (stackA.first().value != smallest) {
+                        ra()
+                    }
+                } else {
+                    while (stackA.first().value != smallest) {
+                        rra()
+                    }
                 }
-            } else {
-                while (store.stackA.first().value != store.smallest) {
-                    store.rra()
-                }
+                pb()
+                if (save == 4) break
+                i--
             }
-            store.pb()
-            if (save == 4) break
-            i--
-        }
-        sort3(store)
-        store.pa()
-        if (save == 5) store.pa()
-    }
-
-     fun sortLessThan10(store: Store, flag: Int) {
-        var i = if (flag == 1) store.stackA.size - 5 else store.stackA.size
-        val j = i
-
-        while (i > 0) {
-            store.smallest = Int.MAX_VALUE
-            findTheSmallest(store, store.stackA) // TODO: later check if this is can be done without sending a stack all the time
-            val smallesIndex = store.stackA.indexOfFirst { it.value == store.smallest }
-            rotateUp(store, smallesIndex, i)
-            store.pb()
-            i--
-        }
-        if (flag == 1) sort4Or5(store, 5)
-        repeat(j) {
-            store.pa()
+            sort3(store)
+            pa()
+            if (save == 5) pa()
         }
     }
 
-    fun findTheSmallest(store: Store, stack: ArrayDeque<StackElement>) {
+    fun sortLessThan10(store: Store, flag: Int) {
+        with (store) {
+            var i = if (flag == 1) stackA.size - 5 else stackA.size
+            val j = i
+
+            while (i > 0) {
+                smallest = Int.MAX_VALUE
+                findTheSmallest(stackA) // TODO: later check if this is can be done without sending a stack all the time
+                val smallestIndex = stackA.indexOfFirst { it.value == smallest }
+                rotateUp(smallestIndex, i)
+                pb()
+                i--
+            }
+            if (flag == 1) sort4Or5(this,5)
+            repeat(j) {
+                pa()
+            }
+        }
+    }
+
+
+    private fun Store.findTheSmallest(stack: ArrayDeque<StackElement>) {
         for ((i, element) in stack.withIndex()) {
-            if (element.value < store.smallest) {
-                store.smallest = element.value
+            if (element.value < smallest) {
+                smallest = element.value
             }
             element.index = i
         }
     }
 
-    private fun rotateUp(store: Store, smallestIndex: Int, i: Int) {
+    private fun Store.rotateUp(smallestIndex: Int, i: Int) {
         if (smallestIndex <= i) {
-            while (store.stackA.first().value != store.smallest) {
-                store.ra()
+            while (stackA.first().value != smallest) {
+                ra()
             }
         } else {
-            while (store.stackA.first().value != store.smallest) {
-                store.rra()
+            while (stackA.first().value != smallest) {
+                rra()
             }
         }
     }
