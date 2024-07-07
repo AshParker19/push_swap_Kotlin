@@ -31,7 +31,7 @@ object Algorithm {
 
             while (i > 0) {
                 smallest = Int.MAX_VALUE
-                findTheSmallest(stackA) // TODO: check if can be lambda
+                findSmallest()
                 val smallestIndex = stackA.indexOfFirst { it.value == smallest }
                 if (smallestIndex <= i) {
                     while (stackA.first().value != smallest) {
@@ -59,7 +59,7 @@ object Algorithm {
 
             while (i > 0) {
                 smallest = Int.MAX_VALUE
-                findTheSmallest(stackA) // TODO: later check if this is can be done without sending a stack all the time
+                findSmallest()
                 val smallestIndex = stackA.indexOfFirst { it.value == smallest }
                 rotateUp(smallestIndex, i)
                 pb()
@@ -72,13 +72,12 @@ object Algorithm {
         }
     }
 
-
-    private fun Store.findTheSmallest(stack: ArrayDeque<StackElement>) {
-        for ((i, element) in stack.withIndex()) {
+    private fun Store.findSmallest() {
+        stackA.forEachIndexed { index, element ->
             if (element.value < smallest) {
                 smallest = element.value
             }
-            element.index = i
+            element.index = index
         }
     }
 

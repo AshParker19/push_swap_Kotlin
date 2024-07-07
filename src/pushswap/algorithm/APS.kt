@@ -104,7 +104,6 @@ object APS {
         val indexFromStart = stackA.indexOfFirst { element ->
             element.flag == flag
         }
-
         val indexFromEnd = stackA.indexOfLast { element ->
             element.flag == flag
         }

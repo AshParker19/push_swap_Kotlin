@@ -18,7 +18,7 @@ class Store(inputSize: Int)
 
     // deques which represent stacks A and B
     var stackA: ArrayDeque<StackElement> = ArrayDeque()
-    var stackB: ArrayDeque<StackElement> = ArrayDeque() //TODO make this variables private
+    var stackB: ArrayDeque<StackElement> = ArrayDeque()
 
     init {
         when (inputSize) {
