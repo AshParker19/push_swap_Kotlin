@@ -24,7 +24,7 @@ object Algorithm {
         }
     }
 
-    private fun sort4Or5(store: Store, save: Int) {
+    fun sort4Or5(store: Store, save: Int) {
         var i = 2
 
         while (i > 0) {
@@ -49,7 +49,7 @@ object Algorithm {
         if (save == 5) store.pa()
     }
 
-    private fun sortLessThan10(store: Store, flag: Int) {
+     fun sortLessThan10(store: Store, flag: Int) {
         var i = if (flag == 1) store.stackA.size - 5 else store.stackA.size
         val j = i
 

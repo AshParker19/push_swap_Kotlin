@@ -16,6 +16,8 @@ object APS { //TODO check is I can apply some scope function for the whole class
         copy.sort()
         marker(store, copy)
         pushBMain(store)
+        sortRemainder(store)
+        pushAMain(store)
     }
 
     private fun marker(store: Store, copy: IntArray) {
@@ -105,9 +107,9 @@ object APS { //TODO check is I can apply some scope function for the whole class
             element.flag == flag
         }
 
-        val startCost = findTheCost(indexFromStart, store.stackA.size, dir)
+        val startCost = findCost(indexFromStart, store.stackA.size, dir)
         val dirSave = dir.direction
-        val endCost = findTheCost(indexFromEnd, store.stackA.size, dir)
+        val endCost = findCost(indexFromEnd, store.stackA.size, dir)
 
         return if (startCost <= endCost) {
             dir.direction = dirSave
@@ -117,7 +119,7 @@ object APS { //TODO check is I can apply some scope function for the whole class
         }
     }
 
-    fun findTheCost(index: Int, count: Int, dir: DirectionHolder): Int {
+    fun findCost(index: Int, count: Int, dir: DirectionHolder): Int {
         return if (index <= count - index) {
             dir.direction = Constants.UP
             index + 1
@@ -188,5 +190,41 @@ object APS { //TODO check is I can apply some scope function for the whole class
         store.rotateStack(cost, dir, Constants.STACK_A)
         store.pb()
     }
+
+    fun sortRemainder(store: Store) {
+        if (store.stackA.size == 4) {
+            Algorithm.sort4Or5(store, 4)
+        } else if (store.stackA.size == 10) {
+            Algorithm.sortLessThan10(store, 1)
+        } else {
+            Algorithm.sortLessThan10(store, 0)
+        }
+    }
+
+    // 0, 1, 0
+    fun pushAMain(store: Store) {
+        while (store.stackB.isNotEmpty()) {
+            store.biggest = Int.MIN_VALUE
+            find1st2nd(store)
+            var cost = findCost2
+        }
+    }
+
+    fun find1st2nd(store: Store) {
+        store.stackB.forEachIndexed { index, stackElement ->
+            when {
+                stackElement.value > store.biggest -> {
+                    store.sndBiggest = store.biggest
+                    store.biggest = stackElement.value
+                }
+                stackElement.value > store.sndBiggest -> {
+                    store.sndBiggest = stackElement.value
+                }
+            }
+            stackElement.index = index
+        }
+    }
+
+    fun findCost2()
 }
 
